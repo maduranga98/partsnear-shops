@@ -16,36 +16,50 @@ import {
   ChevronRight,
   Store,
   CreditCard,
+  Lock,
 } from 'lucide-react';
 import { cn } from '../../utils/helpers';
 import { useAuth } from '../../hooks/useAuth';
-// isMobile is passed as prop, no need for library
+import { hasTierAccess, TIERS } from '../../config/tiers';
+import Tooltip from '../ui/Tooltip';
 
-
-const NAV_ITEMS = [
-  { label: 'Dashboard', icon: LayoutDashboard, path: '/', exact: true },
-  { label: 'Parts', icon: Package, path: '/parts' },
-  { label: 'Inventory', icon: Store, path: '/inventory', tier: 'basic' },
-  { label: 'Inquiries', icon: MessageSquare, path: '/inquiries' },
-  { label: 'POS', icon: ShoppingCart, path: '/pos', tier: 'pro' },
-  { label: 'Customers', icon: Users, path: '/customers', tier: 'basic' },
-  { label: 'Suppliers', icon: MapPin, path: '/suppliers', tier: 'basic' },
-  { label: 'Analytics', icon: BarChart2, path: '/analytics', tier: 'basic' },
-  { label: 'Staff', icon: Shield, path: '/staff', tier: 'pro' },
-  { label: 'Boost', icon: Zap, path: '/boost', tier: 'basic' },
-  { label: 'Subscription', icon: CreditCard, path: '/subscription' },
-  { label: 'Settings', icon: Settings, path: '/settings' },
+const NAV_GROUPS = [
+  {
+    title: 'Core',
+    items: [
+      { label: 'Dashboard', icon: LayoutDashboard, path: '/', exact: true, tier: TIERS.FREE },
+      { label: 'Parts', icon: Package, path: '/parts', tier: TIERS.FREE },
+      { label: 'Inquiries', icon: MessageSquare, path: '/inquiries', tier: TIERS.FREE },
+    ]
+  },
+  {
+    title: 'Business',
+    items: [
+      { label: 'Inventory', icon: Store, path: '/inventory', tier: TIERS.BASIC },
+      { label: 'Customers', icon: Users, path: '/customers', tier: TIERS.BASIC },
+      { label: 'Suppliers', icon: MapPin, path: '/suppliers', tier: TIERS.BASIC },
+      { label: 'Analytics', icon: BarChart2, path: '/analytics', tier: TIERS.BASIC },
+      { label: 'Boost', icon: Zap, path: '/boost', tier: TIERS.BASIC },
+    ]
+  },
+  {
+    title: 'Enterprise',
+    items: [
+      { label: 'POS', icon: ShoppingCart, path: '/pos', tier: TIERS.PRO },
+      { label: 'Staff', icon: Shield, path: '/staff', tier: TIERS.PRO },
+    ]
+  },
+  {
+    title: 'Support',
+    items: [
+      { label: 'Subscription', icon: CreditCard, path: '/subscription', tier: TIERS.FREE },
+      { label: 'Settings', icon: Settings, path: '/settings', tier: TIERS.FREE },
+    ]
+  }
 ];
 
 const Sidebar = ({ isOpen, toggle, isMobile }) => {
   const { logout, userTier } = useAuth();
-  
-  // Filter items based on tier
-  // In a real app, you might show them locked or hide them. 
-  // For now, let's show everything but maybe visually indicate locked if we had a helper.
-  // We'll just hide them if the user doesn't have the tier, or maybe show all for demo.
-  // The implementing plan said "Subscription tier route guard", implies we hide or lock.
-  // Let's just render all for now to show the UI structure, usually layout shows all available features.
   
   return (
     <aside
@@ -73,38 +87,67 @@ const Sidebar = ({ isOpen, toggle, isMobile }) => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            end={item.exact}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] transition-colors relative group',
-                isActive
-                  ? 'bg-primary text-white'
-                  : 'text-gray-400 hover:bg-navy-light hover:text-white'
-              )
-            }
-          >
-            <item.icon size={20} className="shrink-0" />
-            <span
-              className={cn(
-                'font-medium whitespace-nowrap transition-all duration-300',
-                !isOpen && 'opacity-0 w-0 overflow-hidden'
-              )}
-            >
-              {item.label}
-            </span>
-            
-            {/* Tooltip for collapsed state */}
-            {!isOpen && !isMobile && (
-              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-darkest text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">
-                {item.label}
-              </div>
+      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6 custom-scrollbar">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.title} className="space-y-1">
+            {isOpen && (
+              <h4 className="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+                {group.title}
+              </h4>
             )}
-          </NavLink>
+            
+            {group.items.map((item) => {
+              const isLocked = !hasTierAccess(userTier, item.tier);
+              
+              const content = (
+                <NavLink
+                  key={item.path}
+                  to={isLocked ? '/subscription/upgrade' : item.path}
+                  end={item.exact}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] transition-colors relative group',
+                      isActive && !isLocked
+                        ? 'bg-primary text-white'
+                        : 'text-gray-400 hover:bg-navy-light hover:text-white',
+                      isLocked && 'cursor-not-allowed opacity-80'
+                    )
+                  }
+                >
+                  <item.icon size={20} className="shrink-0" />
+                  <span
+                    className={cn(
+                      'font-medium whitespace-nowrap transition-all duration-300 flex-1',
+                      !isOpen && 'opacity-0 w-0 overflow-hidden'
+                    )}
+                  >
+                    {item.label}
+                  </span>
+                  
+                  {isLocked && isOpen && (
+                    <Lock size={14} className="text-gray-600 group-hover:text-primary transition-colors" />
+                  )}
+
+                  {/* Tooltip for collapsed state */}
+                  {!isOpen && !isMobile && (
+                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-darkest text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">
+                      {item.label} {isLocked ? '(Upgrade required)' : ''}
+                    </div>
+                  )}
+                </NavLink>
+              );
+
+              if (isLocked && isOpen) {
+                return (
+                  <Tooltip key={item.path} content={`Available on ${item.tier.toUpperCase()} plan`}>
+                    {content}
+                  </Tooltip>
+                );
+              }
+
+              return content;
+            })}
+          </div>
         ))}
       </nav>
 

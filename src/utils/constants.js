@@ -47,12 +47,28 @@ export const VEHICLE_MAKES = [
   'Mazda', 'Lexus', 'Jeep', 'Ram', 'GMC', 'Dodge',
 ];
 
-// Part categories (sample — extend as needed)
+// Part types
+export const PART_TYPES = [
+  'OEM (Original Equipment Manufacturer)',
+  'Aftermarket',
+  'Genuine',
+  'Performance',
+];
+
+// Part conditions
+export const PART_CONDITIONS = [
+  'New',
+  'Used',
+  'Reconditioned',
+  'Open Box',
+];
+
+// Extended Part categories (sample — extend as needed)
 export const PART_CATEGORIES = [
   'Engine', 'Transmission', 'Brakes', 'Suspension', 'Steering',
   'Electrical', 'Body', 'Interior', 'Exhaust', 'Cooling',
   'Fuel System', 'Ignition', 'Lighting', 'Wheels & Tires',
-  'AC & Heating', 'Filters', 'Belts & Hoses', 'Accessories',
+  'AC & Heating', 'Filters', 'Belts & Hoses', 'Bearings', 'Accessories',
 ];
 
 // Notification types
@@ -63,3 +79,57 @@ export const NOTIFICATION_TYPES = {
   SYSTEM: 'system',
   SUBSCRIPTION: 'subscription',
 };
+// Sub-categories for parts
+export const PART_SUB_CATEGORIES = {
+  'Engine': ['Cylinder Head', 'Piston', 'Crankshaft', 'Engine Mount', 'Gasket Kit'],
+  'Brakes': ['Brake Pads', 'Brake Discs', 'Brake Caliper', 'Brake Master Cylinder', 'ABS Sensor'],
+  'Suspension': ['Shock Absorber', 'Control Arm', 'Ball Joint', 'Coil Spring', 'Strut Mount'],
+  'Electrical': ['Alternator', 'Starter Motor', 'Battery', 'Ignition Coil', 'Sensors'],
+  'Bearings': ['Wheel Bearing', 'Hub Bearing', 'Release Bearing', 'Clutch Bearing'],
+  // Add more as needed...
+};
+
+// Advanced specification definitions per category
+export const PART_SPECIFICATIONS = {
+  'Bearings': [
+    { name: 'innerDiameter', label: 'Inner Diameter', type: 'number', unit: 'mm', required: true },
+    { name: 'outerDiameter', label: 'Outer Diameter', type: 'number', unit: 'mm', required: true },
+    { name: 'width', label: 'Width', type: 'number', unit: 'mm', required: true },
+    { name: 'bearingCode', label: 'Bearing Code', type: 'text', placeholder: 'e.g. 6204-2RS' },
+    { name: 'type', label: 'Type', type: 'select', options: ['Ball', 'Roller', 'Tapered', 'Needle'] },
+  ],
+  'Brakes': [
+    { name: 'material', label: 'Material', type: 'select', options: ['Ceramic', 'Semi-Metallic', 'Organic'] },
+    { name: 'thickness', label: 'Thickness', type: 'number', unit: 'mm' },
+  ],
+  // Add more specifications for other categories...
+};
+// Stock adjustment reasons
+export const ADJUSTMENT_REASONS = [
+  { value: 'received', label: 'Received', type: 'in' },
+  { value: 'sold', label: 'Sold (manual)', type: 'out' },
+  { value: 'damaged', label: 'Damaged', type: 'out' },
+  { value: 'returned', label: 'Returned', type: 'in' },
+  { value: 'correction', label: 'Correction', type: 'both' },
+  { value: 'theft', label: 'Theft', type: 'out' },
+  { value: 'expired', label: 'Expired', type: 'out' },
+  { value: 'stocktake', label: 'Stock Take', type: 'both' },
+];
+// Customer tags
+export const CUSTOMER_TAGS = [
+  'Wholesale', 'Regular', 'VIP', 'Mechanic', 'Garage',
+];
+
+// Staff roles
+export const STAFF_ROLES = {
+  OWNER: 'Owner',
+  MANAGER: 'Manager',
+  CASHIER: 'Cashier',
+  INVENTORY: 'Inventory Staff',
+  VIEWER: 'Viewer',
+};
+
+// Payment methods
+export const PAYMENT_METHODS = [
+  'Cash', 'Credit', 'Card', 'Bank Transfer', 'Online',
+];

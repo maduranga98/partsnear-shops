@@ -6,15 +6,12 @@ import { cn, getInitials } from '../../utils/helpers';
 import Input from '../ui/Input';
 import Dropdown, { DropdownItem, DropdownDivider, DropdownLabel } from '../ui/Dropdown';
 import Badge from '../ui/Badge';
+import { useNotification } from '../../context/NotificationContext';
+import { formatDistanceToNow } from 'date-fns';
 
 const Navbar = ({ onMenuClick, isSidebarOpen }) => {
   const { userProfile, logout } = useAuth();
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'New Inquiry', message: 'Toyota Corolla 2015 Bumper', time: '5m ago', unread: true },
-    { id: 2, title: 'Low Stock', message: 'Brake Pads (Front) running low', time: '1h ago', unread: false },
-  ]);
-
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const { notifications, unreadCount, markAsRead } = useNotification();
 
   return (
     <header className="h-16 bg-white border-b border-border px-4 lg:px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm">
@@ -63,16 +60,33 @@ const Navbar = ({ onMenuClick, isSidebarOpen }) => {
               </div>
               <div className="max-h-[300px] overflow-y-auto">
                 {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-text-muted text-[13px]">No notifications</div>
+                    <div className="p-8 text-center">
+                        <div className="w-12 h-12 bg-surface-2 rounded-full flex items-center justify-center mx-auto mb-2 text-text-muted">
+                           <Bell size={24} />
+                        </div>
+                        <p className="text-text-muted text-[13px]">No notifications yet</p>
+                    </div>
                 ) : (
                     notifications.map((n) => (
-                        <div key={n.id} className={cn("px-4 py-3 border-b border-border last:border-0 hover:bg-surface cursor-pointer transition-colors", n.unread && "bg-surface/50")}>
-                            <div className="flex justify-between items-start mb-1">
-                                <span className={cn("font-semibold text-[13px]", n.unread ? "text-text-primary" : "text-text-body")}>{n.title}</span>
-                                <span className="text-[10px] text-text-muted">{n.time}</span>
+                        <Link 
+                          key={n.id} 
+                          to={n.link || '/notifications'}
+                          onClick={() => n.unread && markAsRead(n.id)}
+                          className={cn(
+                            "block px-4 py-3 border-b border-border last:border-0 hover:bg-surface transition-colors", 
+                            n.unread && "bg-primary/5"
+                          )}
+                        >
+                            <div className="flex justify-between items-start mb-0.5">
+                                <span className={cn("font-bold text-[13px]", n.unread ? "text-text-primary" : "text-text-body")}>
+                                  {n.title}
+                                </span>
+                                <span className="text-[9px] text-text-muted font-medium">
+                                  {n.createdAt ? formatDistanceToNow(n.createdAt.toDate(), { addSuffix: true }) : 'Just now'}
+                                </span>
                             </div>
-                            <p className="text-[12px] text-text-secondary line-clamp-2">{n.message}</p>
-                        </div>
+                            <p className="text-[12px] text-text-secondary line-clamp-2 leading-relaxed">{n.message}</p>
+                        </Link>
                     ))
                 )}
               </div>

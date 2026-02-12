@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import BottomNav from './BottomNav';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../utils/helpers';
 
@@ -72,13 +73,16 @@ const Layout = () => {
         />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8 pb-20 lg:pb-8">
             <div className="min-h-full flex flex-col">
                  <Outlet />
                  <Footer className="mt-auto pt-8" />
             </div>
         </main>
       </div>
+
+      {/* Mobile Bottom Nav */}
+      <BottomNav onMenuClick={toggleSidebar} />
 
       {/* Mobile Overlay */}
       {isMobile && isSidebarOpen && (

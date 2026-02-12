@@ -3,13 +3,13 @@
  */
 
 export const TIERS = {
-  FREE: 'free',
   BASIC: 'basic',
-  PRO: 'pro',
+  STANDARD: 'standard',
+  PREMIUM: 'premium',
   ENTERPRISE: 'enterprise',
 };
 
-export const TIER_HIERARCHY = [TIERS.FREE, TIERS.BASIC, TIERS.PRO, TIERS.ENTERPRISE];
+export const TIER_HIERARCHY = [TIERS.BASIC, TIERS.STANDARD, TIERS.PREMIUM, TIERS.ENTERPRISE];
 
 /**
  * Check if a user's tier meets the required tier level
@@ -21,48 +21,55 @@ export const hasTierAccess = (userTier, requiredTier) => {
 };
 
 export const TIER_DETAILS = {
-  [TIERS.FREE]: {
-    name: 'Free',
-    price: 0,
-    features: [
-      'Basic shop profile',
-      'Up to 50 parts listing',
-      'Receive inquiries',
-      'Basic dashboard',
-    ],
-  },
   [TIERS.BASIC]: {
     name: 'Basic',
-    price: 29,
+    price: 2500,
+    partsLimit: 500,
     features: [
       'Up to 500 parts listing',
       'Inventory management',
-      'Supplier directory',
-      'Customer management',
-      'Basic analytics',
-      'Boost (1 per month)',
+      'Basic dashboard',
+      'Public store profile',
+      'Email support',
     ],
   },
-  [TIERS.PRO]: {
-    name: 'Pro',
-    price: 79,
+  [TIERS.STANDARD]: {
+    name: 'Standard',
+    price: 5000,
+    partsLimit: 2000,
+    features: [
+      'Up to 2,000 parts listing',
+      'Everything in Basic',
+      'Customer CRM',
+      'Advanced analytics',
+      'Staff management (up to 3 users)',
+      'Priority support',
+      'Boost (2 per month)',
+    ],
+  },
+  [TIERS.PREMIUM]: {
+    name: 'Premium',
+    price: 10000,
+    partsLimit: -1, // Unlimited
     features: [
       'Unlimited parts listing',
+      'Everything in Standard',
       'POS system',
-      'Staff management',
-      'Advanced analytics',
-      'Priority support',
-      'Boost (5 per month)',
+      'Multi-staff management',
+      'Advanced reports',
+      'Personal account manager',
+      'Boost (10 per month)',
+      'Custom invoice/receipt branding',
     ],
   },
   [TIERS.ENTERPRISE]: {
     name: 'Enterprise',
-    price: 199,
+    price: -1, // Custom
     features: [
-      'Everything in Pro',
+      'Everything in Premium',
       'Multi-location support',
       'API access',
-      'Dedicated account manager',
+      'Dedicated server/SLA',
       'Custom integrations',
       'Unlimited boosts',
     ],

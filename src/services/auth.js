@@ -10,10 +10,21 @@ import {
   signInWithPhoneNumber,
   updateProfile,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
 const googleProvider = new GoogleAuthProvider();
+
+/**
+ * Update user profile in Firestore
+ */
+export const updateUserProfile = async (uid, data) => {
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+};
 
 /**
  * Register a new user with email and password
@@ -32,7 +43,7 @@ export const registerWithEmail = async ({ email, password, shopName, phone, disp
     displayName: displayName || shopName,
     shopName,
     phone,
-    tier: 'free',
+    tier: 'basic',
     emailVerified: false,
     onboardingComplete: false,
     createdAt: serverTimestamp(),
@@ -70,7 +81,7 @@ export const loginWithGoogle = async () => {
       photoURL: user.photoURL,
       phone: user.phoneNumber || '',
       shopName: '',
-      tier: 'free',
+      tier: 'basic',
       emailVerified: true,
       onboardingComplete: false,
       createdAt: serverTimestamp(),

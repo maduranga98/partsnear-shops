@@ -1,5 +1,8 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { useAuth } from './AuthContext';
+import { useShop } from './ShopContext';
+import { subscribeToNotifications, markAsRead, markAllAsRead } from '../services/notifications';
 
 const NotificationContext = createContext(null);
 
@@ -12,7 +15,42 @@ export const useNotification = () => {
 };
 
 export const NotificationProvider = ({ children }) => {
+  const { user } = useAuth();
+  const { shop } = useShop();
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    let unsubscribe = () => {};
+    
+    // Subscribe to notifications for the current shop or user
+    const targetId = shop?.id || user?.uid;
+    if (targetId) {
+      unsubscribe = subscribeToNotifications(targetId, (data) => {
+        setNotifications(data);
+        setUnreadCount(data.filter(n => n.unread).length);
+        
+        // Optionally trigger browser notification for new items
+        const newUnread = data.filter(n => n.unread && !notifications.find(existing => existing.id === n.id));
+        if (newUnread.length > 0 && Notification.permission === 'granted') {
+           newUnread.forEach(n => {
+             new Notification(n.title, { body: n.message });
+           });
+        }
+      });
+    }
+
+    return () => unsubscribe();
+  }, [shop?.id, user?.uid]);
+
+  const requestPermission = async () => {
+    if (!('Notification' in window)) return false;
+    const permission = await Notification.requestPermission();
+    return permission === 'granted';
+  };
+
   const notify = {
+    // Toast notifications
     success: (message) =>
       toast.success(message, {
         style: {
@@ -65,6 +103,13 @@ export const NotificationProvider = ({ children }) => {
       toast.promise(promise, { loading, success, error }),
 
     dismiss: () => toast.dismiss(),
+
+    // Center state & actions
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead: () => markAllAsRead(shop?.id || user?.uid, notifications.filter(n => n.unread).map(n => n.id)),
+    requestPermission,
   };
 
   return (

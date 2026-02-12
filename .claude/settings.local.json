@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx --no-install eslint:*)",
+      "Bash(firebase deploy:*)"
+    ]
+  }
+}

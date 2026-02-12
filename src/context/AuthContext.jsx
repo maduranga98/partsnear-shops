@@ -12,6 +12,7 @@ import {
   setupRecaptcha,
   sendPhoneOTP,
   verifyPhoneOTP,
+  updateUserProfile,
 } from '../services/auth';
 
 const AuthContext = createContext(null);
@@ -175,6 +176,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (data) => {
+    if (!user) return;
+    setError(null);
+    try {
+      await updateUserProfile(user.uid, data);
+      await refreshProfile();
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
   const value = {
     user,
     userProfile,
@@ -189,9 +202,11 @@ export const AuthProvider = ({ children }) => {
     resendVerification,
     logout,
     refreshProfile,
+    updateProfile,
     isAuthenticated: !!user,
     isEmailVerified: user?.emailVerified ?? false,
-    userTier: userProfile?.tier || 'free',
+    userTier: userProfile?.tier || 'basic',
+    subscriptionStatus: userProfile?.subscriptionStatus || 'active',
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
